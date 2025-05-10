@@ -1,0 +1,70 @@
+%% Parallel PID Simulink Model (With Arduino Hardware)
+
+TARGET_ANGLE = 816;
+TARGET_POSITION = 0;
+Angle_P = 45;
+Angle_I = 0.6;
+Angle_D = 0.003;
+
+Position_P = 0.15;
+Position_I = 0;
+Position_D = 0.06;
+
+Sample_Rate = 0.018;
+
+figure;
+plot(out.angle);
+hold on;
+plot(out.position);
+
+%% PID Simulations
+
+M = 0.254;
+m = 0.097;
+l = 0.2;
+I = 0.005173;
+b = 0.1;
+
+g = 9.81;
+
+q = (M+m)*I + M*m*l^2;
+num_pend = [m*l/q, 0];
+den_pend = [1, b*(I+m*l^2)/q, -(M+m)*g*l/q, -b*m*g*l/q];
+P_pend = tf(num_pend, den_pend);
+num_cart = [(I+m*l^2)/q, 0, -g*m*l/q];
+den_cart = [1, b*(I+m*l^2)/q, -(M+m)*g*l/q, -b*g*l/q, 0];
+P_cart = tf(num_cart, den_cart);
+
+disp('Pendulum Transfer Function P_pend(s):');
+disp(P_pend);
+disp('Cart Transfer Function P_cart(s):');
+disp(P_cart);
+
+pendTF = tf(num_pend, den_pend);
+cartTF = tf(num_cart, den_cart);
+pole(pendTF)
+pole(cartTF)
+
+Controller_Angle_P = 45;
+Controller_Angle_I = 0.06;
+Controller_Angle_D = 0.003;
+
+Controller_Position_P = 0.1;
+Controller_Position_I = 0;
+Controller_Position_D = 0.006;
+
+%% Plot PID Simulation (change angle to angle1, angle2 etc)
+close all;
+clc;
+
+figure;
+plot(out.Angle, 'b');
+hold on;
+plot(out.Position);
+ylim([170 190]);
+xlim([0 5]);
+grid on;
+ylabel('System Response');
+
+
+
